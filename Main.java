@@ -31,21 +31,19 @@ public class Main {
                 switch (opcion)
                 {
                     case 1:
-                        boolean ingreso = false;
-                        String mail = "";
-                        String contrasena = "";
                         System.out.println("Ingrese su mail:");
                         scanner.nextLine();
-                        mail = scanner.nextLine();
+                        String mail = scanner.nextLine();
                         System.out.println("ingrese contrasena: ");
-                        contrasena = scanner.nextLine();
-                        ingreso = controladoraUsuario.iniciarSesion(mail, contrasena);
-                        if(ingreso==false)
+                        String contrasena = scanner.nextLine();
+                        Usuario usuario1=controladoraUsuario.iniciarSesion(mail, contrasena);
+                        if(usuario1==null)
                         {
-                            System.out.println("Usuario incorrecto");
+                            System.out.println("LogIn.Usuario incorrecto");
                         }else
                         {
                             System.out.println("Ingreso correctamente");
+                            menu(usuario1);
                         }
                         break;
                     case 2:
@@ -71,14 +69,16 @@ public class Main {
             System.out.println(e);
         }
     }
-       //funcion menu para la busqueda de vuelos y alojamientos
-    public static void menu(Usuario usuario)
+
+
+    //funcion menu para la busqueda de vuelos y alojamientos
+    private static void menu(Usuario usuario1)
     {
         Scanner scanner = new Scanner(System.in);
         boolean salir = false;
         do
         {
-            //EmpresaVuelo empresaVuelo=new EmpresaVuelo();
+            EmpresaVuelo empresaVuelo=new EmpresaVuelo();
             System.out.println("Ingrese la opcion que desea realizar: ");
             System.out.println("OPCION 1: Buscar vuelos");
             System.out.println("OPCION 2: Buscar alojamiento");
@@ -94,9 +94,10 @@ public class Main {
                     System.out.println("Ingrese la fecha de salida");
                     String fechaSalida=scanner.nextLine();
 
-                    //HashSet setVuelosDestino=empresaVuelo.buscarVuelo(paisOrigen,paisDestino);
-                    //System.out.println(setVuelos.toString());
-                    menu2();
+                    HashSet setVuelosDestino=empresaVuelo.buscarVuelo(paisOrigen,paisDestino);
+                    System.out.println(setVuelosDestino.toString());
+                    menu2(usuario1,empresaVuelo,setVuelosDestino);
+
 
                     break;
                 case 2:
@@ -111,7 +112,7 @@ public class Main {
 
     }
     //funcion para el filtrado de los vuelos
-    public static void menu2(Usuario usuario,EmpresaVuelo empresaVuelo,HashSet setVuelosDestino)
+    private static void menu2(Usuario usuario,EmpresaVuelo empresaVuelo,HashSet setVuelosDestino)
     {
         Scanner scanner = new Scanner(System.in);
         boolean salir = false;
@@ -125,29 +126,76 @@ public class Main {
             int opcion = scanner.nextInt();
             switch (opcion)
             {
+
                 case 1:
                     System.out.println("LAS CLASES DE LOS VUELOS SON:" +
                             "PRIMERA CLASE" +
                             "EJECUTIVA" +
                             "ECONOMICA");
                     String clase=scanner.nextLine();
-                    HashSet setVuelosFiltrados=empresaVuelo.buscarVuelo(clase,setVuelosDestino);
-                    System.out.println(setVuelosFiltrados.toString());
+                    HashSet vuelosFiltradosClase=empresaVuelo.buscarVuelo(clase,setVuelosDestino);
+                    System.out.println(vuelosFiltradosClase.toString());
                     System.out.println("desea reservar alguno");
                     String rta=scanner.nextLine();
                     if(rta.equalsIgnoreCase("si"))
                     {
                         System.out.println("ingrese el id del vuelo que quiera reservar");
-                        Vuelo vueloAReservar//hacer funcion para buscar por id
-                        Reserva reserva=empresaVuelo.reservarVuelo(Vuelo vueloAReservar);
-                        usuario.agregarReserva(reserva);
+                        int id=scanner.nextInt();
+                        Vuelo vueloAReservar= empresaVuelo.buscarVuelo(id,vuelosFiltradosClase);
+                        System.out.println("ingrese las personas mayores de edad (18 años o mas)");
+                        int mayoresEdad=scanner.nextInt();
+                        System.out.println("ingrese las personas mayores de edad (17 años o menos)");
+                        int menoresEdad=scanner.nextInt();
+                        //Reserva reserva=empresaVuelo.reservarVuelo(Vuelo vueloAReservar);
+                        //usuario.agregarReserva(reserva);
                     }
                     break;
                 case 2:
+                    System.out.println("INGRESE PRECIO MINIMO");
+                    float precioMinimo=scanner.nextFloat();
+                    System.out.println("INGRESE PRECIO MAXIMO");
+                    float precioMaximo=scanner.nextFloat();
+                    HashSet vuelosFiltradosPrecio=empresaVuelo.buscarVuelo(precioMinimo,precioMaximo,setVuelosDestino);
+                    System.out.println(vuelosFiltradosPrecio.toString());
+                    System.out.println("desea reservar alguno");
+                    String rta1=scanner.nextLine();
+                    if(rta1.equalsIgnoreCase("si"))
+                    {
+                        System.out.println("ingrese el id del vuelo que quiera reservar");
+                        int id=scanner.nextInt();
+                        Vuelo vueloAReservar= empresaVuelo.buscarVuelo(id,vuelosFiltradosPrecio);
+                        System.out.println("ingrese las personas mayores de edad (18 años o mas)");
+                        int mayoresEdad=scanner.nextInt();
+                        System.out.println("ingrese las personas mayores de edad (17 años o menos)");
+                        int menoresEdad=scanner.nextInt();
+                        //Reserva reserva=empresaVuelo.reservarVuelo(Vuelo vueloAReservar);
+                        //usuario.agregarReserva(reserva);
+                    }
 
                     break;
                 case 3:
-
+                    //falta terminar
+                    for (Aerolinea aux:Aerolinea.values()) {
+                        System.out.println(aux);
+                    }
+                    System.out.println("INGRESE LA AEROLINEA");
+                    String aerolinea=scanner.nextLine();
+                    HashSet vuelosFiltradosAerolinea=empresaVuelo.buscarVuelo(precioMinimo,precioMaximo,setVuelosDestino);
+                    System.out.println(vuelosFiltradosAerolinea.toString());
+                    System.out.println("desea reservar alguno");
+                    String rta2=scanner.nextLine();
+                    if(rta2.equalsIgnoreCase("si"))
+                    {
+                        System.out.println("ingrese el id del vuelo que quiera reservar");
+                        int id=scanner.nextInt();
+                        Vuelo vueloAReservar= empresaVuelo.buscarVuelo(id,vuelosFiltradosAerolinea);
+                        System.out.println("ingrese las personas mayores de edad (18 años o mas)");
+                        int mayoresEdad=scanner.nextInt();
+                        System.out.println("ingrese las personas mayores de edad (17 años o menos)");
+                        int menoresEdad=scanner.nextInt();
+                        //Reserva reserva=empresaVuelo.reservarVuelo(Vuelo vueloAReservar);
+                        //usuario.agregarReserva(reserva);
+                    }
                     break;
             }
 

@@ -38,9 +38,14 @@ public class EmpresaVuelo {
         return existe;
     }
 
-    
-  //Funcion que busca un vuelo segun su pais de origen y destino
-    public HashSet<Vuelo> buscarVuelo (String paisOrigen,String paisDestino){
+
+    /** La siguiente función permite buscar los vuelos por la clase
+     * @param paisOrigen es el nombre del pais origen que manda el usuario,
+     * @param paisDestino es el nombre del pais destino que manda el usuario
+     * @author MateoCuevas
+     * @return la coleccion de vuelos encontrados, de lo contrario retorna null
+     */
+    public HashSet<Vuelo> buscarVuelo (String paisOrigen, String paisDestino){
         HashSet<Vuelo> vuelosDisponibles = new HashSet<>();
         Iterator it = vuelos.iterator();
         while (it.hasNext()){
@@ -52,9 +57,14 @@ public class EmpresaVuelo {
         return vuelosDisponibles;
     }
 
-
-    //Funcion que busca vuelos por rango de precio
-    public HashSet<Vuelo> buscarVuelo (float precioMin,float precioMax,HashSet setVuelos){
+    /** La siguiente función permite buscar los vuelos por la clase
+     * @param precioMin es el precio minimo que manda el usuario,
+     * @param precioMax es el precio maximo que manda el usuario,
+     * @param setVuelos  es la coleccion con los vuelos
+     * @author MateoCuevas
+     * @return la coleccion de vuelos encontrados, de lo contrario retorna null
+     */
+    public HashSet<Vuelo> buscarVuelo (float precioMin, float precioMax, HashSet setVuelos){
         HashSet<Vuelo> vuelosDisponibles = new HashSet<>();
         Iterator it = setVuelos.iterator();
         while (it.hasNext()){
@@ -65,11 +75,16 @@ public class EmpresaVuelo {
         }
         return vuelosDisponibles;
     }
-    //Funcion que busca vuelos por clase
-    public HashSet<Vuelo> buscarVuelo (String clase,HashSet setVuelos){
+    /** La siguiente función permite buscar los vuelos por la clase
+     * @param clase es el nombre de la clase que manda el usuario,
+     * @param setVuelos  es la coleccion con los vuelos
+     * @author MateoCuevas
+     * @return la coleccion de vuelos encontrados, de lo contrario retorna null
+     */
+    public HashSet<Vuelo> buscarVuelo (String clase, HashSet setVuelos) {
         HashSet<Vuelo> vuelosDisponibles = new HashSet<>();
         Iterator it = setVuelos.iterator();
-        while (it.hasNext()){
+        while (it.hasNext()) {
             Vuelo vuelo = (Vuelo) it.next();
             if (vuelo.isDisponibilidad() && vuelo.getOrigen().equalsIgnoreCase(clase)) {
                 vuelosDisponibles.add(vuelo);
@@ -77,6 +92,41 @@ public class EmpresaVuelo {
         }
         return vuelosDisponibles;
     }
+    /** La siguiente función permite buscar los vuelos por la aerolinea
+     * @param aerolinea es el nombre de la aerolinea que manda el usuario,
+     * @param setVuelos  es la coleccion con los vuelos
+     * @author MateoCuevas
+     * @return la coleccion de vuelos encontrados, de lo contrario retorna null
+     */
+    public HashSet<Vuelo> buscarVuelo (Enum aerolinea, HashSet setVuelos) {
+        HashSet<Vuelo> vuelosDisponibles = new HashSet<>();
+        Iterator it = setVuelos.iterator();
+        while (it.hasNext()) {
+            Vuelo vuelo = (Vuelo) it.next();
+            if (vuelo.isDisponibilidad() && vuelo.getAerolinea().) {
+                vuelosDisponibles.add(vuelo);
+            }
+        }
+        return vuelosDisponibles;
+    }
+    /** La siguiente función permite buscar los vuelos por el id
+     * @param id es el id que manda el usuario,
+     * @param setVuelos  es la coleccion con los vuelos
+     * @author MateoCuevas
+     * @return el vuelo encontrado, de lo contrario retorna null
+     */
+    public Vuelo buscarVuelo (int id,HashSet setVuelos) {
+        Vuelo vueloAReservar=null;
+        Iterator it = setVuelos.iterator();
+        while (it.hasNext()) {
+            Vuelo vuelo = (Vuelo) it.next();
+            if (vuelo.isDisponibilidad() && vuelo.getId()==id) {
+                vueloAReservar=vuelo;
+            }
+        }
+        return vueloAReservar;
+    }
+
     
  /** La siguiente función permite visualizar al usuario la información de un país solicitado a través de su nombre
      * @param nombrePaisBuscado es el nombre del país que el usuario desea buscar para obtener su información

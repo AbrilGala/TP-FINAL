@@ -46,7 +46,7 @@ public class ControladoraUsuario {
             mapaUsuarios.put(persona1.getMail(), usuario);
         }
     }
-        public Usuario verificarUsuario(String mail)
+         public Usuario verificarUsuario(String mail)
         {
             Usuario usuarioEncontrado = null;
             Iterator<Usuario> it = mapaUsuarios.values().iterator();
@@ -69,25 +69,23 @@ public class ControladoraUsuario {
             }
             return contrasenaCorrecta;
         }
-        public boolean iniciarSesion(String mail, String contrasena) throws Exception
+        public Usuario iniciarSesion(String mail, String contrasena) throws Exception
         {
-            boolean inicioCorrecto = false;
+            Usuario usuarioABuscar = null;
             Usuario usuarioEncontrado = null;
-            usuarioEncontrado = verificarUsuario(mail);
-            if(usuarioEncontrado==null)
+            if(verificarUsuario(mail)!=null)
             {
-            }else
-            {
-                boolean contrasenaCorrecta = verificarContrasena(usuarioEncontrado, contrasena);
-                if(!contrasenaCorrecta)
+                usuarioABuscar=verificarUsuario(mail);
+                if(!verificarContrasena(usuarioABuscar,contrasena))
                 {
                     throw new ContrasenaIncorrectaException("contrasena incorrecta");
-                }else
-                {
-                    inicioCorrecto = true;
                 }
+                else {usuarioEncontrado=usuarioABuscar;}
+            }else
+            {
+               throw new UsuarioNoEncontradoException("usuario incorrecto");
             }
-            return inicioCorrecto;
+            return usuarioEncontrado;
         }
         public boolean registrarse(Usuario usuario) throws Exception
         {

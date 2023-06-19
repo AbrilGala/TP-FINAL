@@ -16,7 +16,7 @@ public class EmpresaVuelo {
 
     //Metodos
 
-    //Funcion que busca un vuelo segun su pais de origen y destino
+  //Funcion que busca un vuelo segun su pais de origen y destino
     public HashSet<Vuelo> buscarVuelo (String paisOrigen,String paisDestino){
         HashSet<Vuelo> vuelosDisponibles = new HashSet<>();
         Iterator it = vuelos.iterator();
@@ -28,15 +28,27 @@ public class EmpresaVuelo {
         }
         return vuelosDisponibles;
     }
-    
-   
+
+
     //Funcion que busca vuelos por rango de precio
-    public HashSet<Vuelo> buscarVuelo (float precioMin,float precioMax){
+    public HashSet<Vuelo> buscarVuelo (float precioMin,float precioMax,HashSet setVuelos){
         HashSet<Vuelo> vuelosDisponibles = new HashSet<>();
-        Iterator it = vuelos.iterator();
+        Iterator it = setVuelos.iterator();
         while (it.hasNext()){
             Vuelo vuelo = (Vuelo) it.next();
             if (vuelo.isDisponibilidad() && precioMin<= vuelo.getPrecio() && vuelo.getPrecio()<=precioMax) {
+                vuelosDisponibles.add(vuelo);
+            }
+        }
+        return vuelosDisponibles;
+    }
+    //Funcion que busca vuelos por clase
+    public HashSet<Vuelo> buscarVuelo (String clase,HashSet setVuelos){
+        HashSet<Vuelo> vuelosDisponibles = new HashSet<>();
+        Iterator it = setVuelos.iterator();
+        while (it.hasNext()){
+            Vuelo vuelo = (Vuelo) it.next();
+            if (vuelo.isDisponibilidad() && vuelo.getOrigen().equalsIgnoreCase(clase)) {
                 vuelosDisponibles.add(vuelo);
             }
         }

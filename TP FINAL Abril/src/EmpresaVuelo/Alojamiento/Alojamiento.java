@@ -2,6 +2,7 @@ package EmpresaVuelo.Alojamiento;
 
 import EmpresaVuelo.Interfaces.ICalcularPrecio;
 import EmpresaVuelo.Interfaces.IVerificarDisponibilidad;
+import org.json.JSONException;
 import org.json.JSONObject;
 
 public class Alojamiento implements ICalcularPrecio, IVerificarDisponibilidad {
@@ -16,11 +17,12 @@ public class Alojamiento implements ICalcularPrecio, IVerificarDisponibilidad {
     private double precio;
     private int cantidadServicios;
     private int cantidadEstrellas;
+    private int id;
 
     //Constructores
 
     //Constructor Completo
-    public Alojamiento(int capacidad, String nombre, boolean disponibilidad, String ciudad, String pais, String direccion, String descripcionServicios, double precio, int cantidadServicios, int cantidadEstrellas) {
+    public Alojamiento(int capacidad, String nombre, boolean disponibilidad, String ciudad, String pais, String direccion, String descripcionServicios, double precio, int cantidadServicios, int cantidadEstrellas, int id) {
         this.capacidad = capacidad;
         this.nombre = nombre;
         this.disponibilidad = disponibilidad;
@@ -31,6 +33,7 @@ public class Alojamiento implements ICalcularPrecio, IVerificarDisponibilidad {
         this.precio = precio;
         this.cantidadServicios = cantidadServicios;
         this.cantidadEstrellas = cantidadEstrellas;
+        this.id = id;
     }
 
     //Constructor vacío
@@ -45,6 +48,7 @@ public class Alojamiento implements ICalcularPrecio, IVerificarDisponibilidad {
         precio = 0;
         cantidadServicios = 0;
         cantidadEstrellas = 0;
+        id = 0;
     }
 
     //Getters
@@ -87,6 +91,10 @@ public class Alojamiento implements ICalcularPrecio, IVerificarDisponibilidad {
 
     public double getPrecio() {
         return precio;
+    }
+
+    public int getId() {
+        return id;
     }
 
     //Setter:
@@ -162,6 +170,31 @@ public class Alojamiento implements ICalcularPrecio, IVerificarDisponibilidad {
         jsonObject.put("precio", precio);
         jsonObject.put("cantidadServicios", cantidadServicios);
         jsonObject.put("cantidadEstrellas", cantidadEstrellas);
+        jsonObject.put("id", id);
         return jsonObject;
+    }
+
+    /**
+     * El método JSONToAlojamiento permite bajar la información de un JSON creando y retornando un objeto de Alojamiento
+     * @param jsonObject
+     * @return el alojamiento creado y cargado
+     * @throws JSONException
+     * @author Mateo Cuevas
+     */
+    public static Alojamiento JSONToAlojamiento(JSONObject jsonObject) throws JSONException
+    {
+        int capacidad = jsonObject.getInt("capacidad");
+        String nombre = jsonObject.getString("nombre");
+        boolean disponibilidad = jsonObject.getBoolean("disponibilidad");
+        String ciudad = jsonObject.getString("ciudad");
+        String pais = jsonObject.getString("pais");
+        String direccion = jsonObject.getString("direccion");
+        String servicios = jsonObject.getString("descripcionServicios");
+        double precio = jsonObject.getDouble("precio");
+        int cantidadServicios = jsonObject.getInt("cantidadServicios");
+        int cantidadEstrellas = jsonObject.getInt("cantidadEstrellas");
+        int id = jsonObject.getInt("id");
+        Alojamiento alojamiento = new Alojamiento(capacidad, nombre, disponibilidad, ciudad, pais, direccion, servicios, precio, cantidadServicios, cantidadEstrellas,id);
+        return alojamiento;
     }
 }

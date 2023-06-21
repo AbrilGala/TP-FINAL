@@ -1,14 +1,28 @@
 package EmpresaVuelo.Vuelos;
 
+import APIS.Paises.Pais;
 import EmpresaVuelo.Vuelos.Aerolineas.Aerolinea;
+import org.json.JSONObject;
 
 public class VueloEconomico extends Vuelo{
 
     //Constructor
-
-
-    public VueloEconomico(int cantPasajeros, int capacidadMax, boolean disponibilidad, String origen, String destino, double cantidadHoras, double distanciaKm, Aerolinea aerolinea, int id, double precio, String fechaDeLlegada, String fechaDeSalida) {
+    public VueloEconomico(int cantPasajeros, int capacidadMax, boolean disponibilidad, Pais origen, Pais destino, double cantidadHoras, double distanciaKm, Aerolinea aerolinea, int id, double precio, String fechaDeLlegada, String fechaDeSalida) {
         super(cantPasajeros, capacidadMax, disponibilidad, origen, destino, cantidadHoras, distanciaKm, aerolinea, id, precio, fechaDeLlegada, fechaDeSalida);
+    }
+
+    public VueloEconomico() {
+
+    }
+
+    //Metodos:
+
+    public JSONObject vueloToJson() throws Exception
+    {
+        JSONObject jsonObject = super.vueloToJson();
+        String tipovuelo = "Economico";
+        jsonObject.put("tipoVuelo", tipovuelo);
+        return jsonObject;
     }
 
     @Override

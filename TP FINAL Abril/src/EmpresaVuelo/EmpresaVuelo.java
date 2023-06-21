@@ -9,7 +9,10 @@ import EmpresaVuelo.Reservas.Reserva;
 import EmpresaVuelo.Vuelos.Aerolineas.Aerolinea;
 import EmpresaVuelo.Vuelos.Vuelo;
 import EmpresaVuelo.Vuelos.VueloEconomico;
+import EmpresaVuelo.Vuelos.VueloEjecutivo;
+import EmpresaVuelo.Vuelos.VueloPrimeraClase;
 import Persona.Usuario.JsonUtiles;
+import Persona.Usuario.Usuario;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -66,8 +69,8 @@ public class EmpresaVuelo {
             int cantPasajeros = jsonObject.getInt("cantPasajeros");
             int capacidadMax = jsonObject.getInt("capacidadMax");
             boolean disponibilidad = jsonObject.getBoolean("disponibilidad");
-            String origen = jsonObject.getString("origen");
-            String destino = jsonObject.getString("destino");
+            Pais origen = (Pais) jsonObject.get("origen");
+            Pais destino = (Pais) jsonObject.get("destino");
             double cantidadHoras = jsonObject.getInt("cantidadHoras");
             double distanciaKM = jsonObject.getDouble("distanciaKm");
             Aerolinea aerolinea = (Aerolinea) jsonObject.get("aerolinea");
@@ -120,17 +123,13 @@ public class EmpresaVuelo {
             double precio = jsonObject.getDouble("precio");
             int cantidadServicios = jsonObject.getInt("cantidadServicios");
             int cantidadEstrellas = jsonObject.getInt("cantidadEstrellas");
-            Alojamiento aux = new Alojamiento(capacidad, nombre, disponibilidad, ciudad, pais, direccion, servicios, precio, cantidadServicios, cantidadEstrellas);
+            int id = jsonObject.getInt("id");
+            Alojamiento aux = new Alojamiento(capacidad, nombre, disponibilidad, ciudad, pais, direccion, servicios, precio, cantidadServicios, cantidadEstrellas,id);
             alojamientos.add(aux);
         }
     }
 
-    /* Falta realizar:
-    //Carga de Archivo Vuelos:
-    public void cargaVuelos (){
-        Vuelo vuelo1 = new VueloEconomico(10,100,true,"Argentina","Brasil", )
-    }
-*/
+
     //Busqueda de Vuelos:
     /**
      * La siguiente función permite buscar los vuelos por la clase
@@ -139,13 +138,16 @@ public class EmpresaVuelo {
      * @param paisDestino es el nombre del pais destino que manda el usuario
      * @return la coleccion de vuelos encontrados, de lo contrario retorna null
      * @author MateoCuevas
+     * @author Abril Galarraga
      */
     public HashSet<Vuelo> buscarVuelo(String paisOrigen, String paisDestino) {
+        Pais origen = buscarPaisPorNombre(paisOrigen);
+        Pais destino = buscarPaisPorNombre(paisDestino);
         HashSet<Vuelo> vuelosDisponibles = new HashSet<>();
         Iterator<Vuelo> it = vuelos.iterator();
-        while (it.hasNext()) {
+        while (it.hasNext()) { //Recorremos la colección de vuelos:
             Vuelo vuelo = (Vuelo) it.next();
-            if (vuelo.isDisponibilidad() && vuelo.getOrigen().equalsIgnoreCase(paisOrigen) && vuelo.getDestino().equalsIgnoreCase(paisDestino)) {
+            if (vuelo.isDisponibilidad() && vuelo.getOrigen().equals(origen) && vuelo.getDestino().equals(destino)) { //Verifica que el vuelo este disponible y coincida con el origen y destino solicitado
                 vuelosDisponibles.add(vuelo);
             }
         }
@@ -162,7 +164,7 @@ public class EmpresaVuelo {
      * @return la coleccion de vuelos encontrados, de lo contrario retorna null
      * @author MateoCuevas
      */
-    public HashSet<Vuelo> buscarVuelo(float precioMin, float precioMax, HashSet<Vuelo> setVuelos) {
+    public HashSet<Vuelo> buscarVuelo(double precioMin, double precioMax, HashSet<Vuelo> setVuelos) {
         HashSet<Vuelo> vuelosDisponibles = new HashSet<>();
         Iterator it = setVuelos.iterator();
         while (it.hasNext()) {
@@ -181,15 +183,32 @@ public class EmpresaVuelo {
      * @param clase     es el nombre de la clase que manda el usuario,
      * @param setVuelos es la coleccion con los vuelos
      * @return la coleccion de vuelos encontrados, de lo contrario retorna null
-     * @author MateoCuevas
+     * @author Abril Galarraga
      */
     public HashSet<Vuelo> buscarVuelo(String clase, HashSet<Vuelo> setVuelos) {
         HashSet<Vuelo> vuelosDisponibles = new HashSet<>();
         Iterator it = setVuelos.iterator();
+
         while (it.hasNext()) {
             Vuelo vuelo = (Vuelo) it.next();
-            if (vuelo.isDisponibilidad() && vuelo.getOrigen().equalsIgnoreCase(clase)) {
-                vuelosDisponibles.add(vuelo);
+            if (vuelo.isDisponibilidad() ){
+                switch (clase){
+                    case "Economico", "economico":
+                    if (vuelo instanceof VueloEconomico){
+                        vuelosDisponibles.add(vuelo);
+                    }
+                    break;
+                    case "Ejecutivo", "ejecutivo":
+                        if (vuelo instanceof VueloEjecutivo){
+                            vuelosDisponibles.add(vuelo);
+                        }
+                        break;
+                    case "Primera clase", "primera clase", "Primera Clase":
+                        if (vuelo instanceof VueloPrimeraClase){
+                            vuelosDisponibles.add(vuelo);
+                        }
+                        break;
+                }
             }
         }
         return vuelosDisponibles;
@@ -299,16 +318,37 @@ public class EmpresaVuelo {
 
 
     //Busqueda de Alojamientos
+
+    /**
+     * La función buscarAlojamiento permite al usuario filtrar su búsqueda de alojamientos estableciendo una condicion específica
+     *
+     * @param  nombre el nombre del alojamiento a filtrar
+     * @return alojamiento con el nombre deseado
+     * @author Mateo Cuevas
+     */
+    public Alojamiento buscarAlojamiento(String nombre,HashSet <Alojamiento> alojamientosFiltrados) {
+        Alojamiento alojamientoABuscar = null;
+        Iterator<Alojamiento> it = alojamientosFiltrados.iterator();//recorre la coleccion de alojamientos con el destino elegido
+        while (it.hasNext()) {
+            Alojamiento aux = (Alojamiento) it.next();
+            if (aux.getNombre().equalsIgnoreCase(nombre)) { //Si el alojamiento actual tiene el mismo nombre que el buscado, lo retorna
+                aux=alojamientoABuscar;
+            }
+        }
+        return alojamientoABuscar;
+    }
+
     /**
      * La función buscarAlojamiento permite al usuario filtrar su búsqueda de alojamientos estableciendo una condicion específica
      *
      * @param precioMax es el precio máximo a filtrar
      * @return una coleccion de alojamientos que tengan un precio menor o igual al establecido por el usuario
      * @author Abril Galarraga
+     * @author Mateo Cuevas
      */
-    public HashSet<Alojamiento> buscarAlojamiento(float precioMax) {
+    public HashSet<Alojamiento> buscarAlojamiento(double precioMax,HashSet <Alojamiento> alojamientosFiltrados) {
         HashSet<Alojamiento> alojamientoPrecioMax = new HashSet<>();
-        Iterator<Alojamiento> it = alojamientos.iterator();
+        Iterator<Alojamiento> it = alojamientosFiltrados.iterator();//recorre la coleccion de alojamientos con el destino elegido
         while (it.hasNext()) {
             Alojamiento aux = (Alojamiento) it.next();
             if (aux.getPrecio() <= precioMax) { //Si el alojamiento actual no supera el precio maximo, lo agrega al set
@@ -325,12 +365,13 @@ public class EmpresaVuelo {
      * @param capacidadMin es la capacidad minima que deben tener los alojamientos
      * @return una coleccion de alojamientos que tengan una capacidad mayor o igual a la solicitada
      * @author Abril Galarraga
+     * @author Mateo Cuevas
      */
-    public HashSet<Alojamiento> buscarAlojamiento(int capacidadMin) {
+    public HashSet<Alojamiento> buscarAlojamiento(int capacidadMin,HashSet <Alojamiento> alojamientosFiltrados) {
         HashSet<Alojamiento> alojamientosAptos = new HashSet<>();
-        Iterator<Alojamiento> it = alojamientos.iterator();
+        Iterator<Alojamiento> it = alojamientosFiltrados.iterator();//recorre la coleccion de alojamientos con el destino elegido
         while (it.hasNext()) {
-            Alojamiento aux = (Alojamiento) it.next();
+            Alojamiento aux = it.next();
             if (aux.getCapacidad() >= capacidadMin) { //Si el alojamiento actual cumple con la capacidad mínima solicitada, lo agrega al set
                 alojamientosAptos.add(aux);
             }
@@ -364,7 +405,9 @@ public class EmpresaVuelo {
     }
 
 
-    //Reservas
+
+    //Reservas:
+
     /**
      * La siguiente función permite crear una reserva a partir de un Vuelo ya preseleccionado por el usuario, sabiendo la cantidad de pasajeros a reservar (mayores/menores).
      * El método retorna la reserva en caso de realizarse exitosamente, de lo contrario puede lanzar una excepcion.
@@ -375,7 +418,7 @@ public class EmpresaVuelo {
      * @throws DisponibilidadAgotadaException si la cantidad de pasajeros totales a reservar supera la cantidad de lugares disponibles del vuelo seleccionado.
      * @author Abril Galarraga
      */
-    public Reserva reservar(Vuelo vueloAReservar, int cantPasajerosMenores, int cantPasajerosMayores) throws DisponibilidadAgotadaException {
+    public Reserva<Vuelo> reservar(Usuario usuario, Vuelo vueloAReservar, int cantPasajerosMenores, int cantPasajerosMayores) throws DisponibilidadAgotadaException {
         //Creo una reserva
         Reserva<Vuelo> reserva = null;
         Date diaActual = new Date(); //Fecha de realización de la reserva
@@ -386,11 +429,45 @@ public class EmpresaVuelo {
             int totalPasajeros = cantPasajerosMayores + cantPasajerosMenores;
             if (vueloAReservar.getCantPasajeros() + totalPasajeros <= vueloAReservar.getCapacidadMax()) { //Verifica si el vuelo tiene la cantidad de lugares necesarios para poder establecer la reserva
                 vueloAReservar.aumentarCantPasajeros(totalPasajeros); //Incrementa la cantidad de pasajeros del vuelo
+                if (vueloAReservar.getCantPasajeros()== vueloAReservar.getCapacidadMax()){ //Si el vuelo se llenó, lo situamos como no disponible
+                    vueloAReservar.modificarDisponibilidad();
+                }
                  reserva = new Reserva<Vuelo>(vueloAReservar, vueloAReservar.getId(), fecha, vueloAReservar.getFechaDeLlegada(), vueloAReservar.getFechaDeSalida(), cantPasajerosMenores, cantPasajerosMayores);
-
+                boolean agregadoAlUsuario = usuario.agregarReserva(reserva); //Se le agrega al usuario la reserva creada
             }
         } else{
 
+            throw new DisponibilidadAgotadaException("No hay mas disponibilidad");
+        }
+        return reserva;
+    }
+
+    /**
+     *La siguiente función permite crear una reserva a partir de un alojamiento ya preseleccionado por el usuario, sabiendo la cantidad de huespedes a reservar (mayores/menores).
+     * El método retorna la reserva en caso de realizarse exitosamente, de lo contrario puede lanzar una excepcion.
+     * @param alojamientoAReservar es el alojamiento que el cliente desea reservar
+     * @param huespedesMenores es la cantidad de huespedes menores de edad que se cuentan dentro del alojamiento
+     * @param huespedesMayores es la cantidad de huespedes mayores de edad que se cuentan dentro del alojamiento
+     * @param fechaLLegada fecha de llegada de los clientes al alojamiento
+     * @param fechaSalida fecha de salida de los clientes al alojamiento
+     * @return la reserva creada
+     * @throws DisponibilidadAgotadaException en caso de que el alojamiento a reservar no se encuentre disponible o no posee la capacidad necesaria para su reserva
+     * @author Abril Galarraga
+     */
+    public Reserva<Alojamiento> reservar (Usuario usuario, Alojamiento alojamientoAReservar, int huespedesMenores, int huespedesMayores, String fechaLLegada, String fechaSalida) throws DisponibilidadAgotadaException{
+        //Creo una reserva
+        Reserva<Alojamiento> reserva = null;
+        Date diaActual = new Date(); //Fecha de realización de la reserva
+        String fecha = String.valueOf(diaActual);
+        if (alojamientoAReservar.verificarDisponibilidad()) {
+
+            int totalAHospedar = huespedesMayores + huespedesMenores;
+            if (alojamientoAReservar.getCapacidad() >= totalAHospedar) { //Verifica si el alojamiento tiene la cantidad de lugares necesarios para poder establecer la reserva
+                alojamientoAReservar.modificarDisponibilidad(); //Sitúa como no disponible el alojamiento a partir de ahpra
+                reserva = new Reserva<>(alojamientoAReservar, alojamientoAReservar.getId(), fecha, fechaLLegada, fechaSalida, huespedesMenores, huespedesMayores);
+                boolean agregadoAlUsuario = usuario.agregarReserva(reserva); //Se le agrega al usuario la reserva creada
+            }
+        } else{
             throw new DisponibilidadAgotadaException("No hay mas disponibilidad");
         }
         return reserva;

@@ -10,7 +10,7 @@ public class ConsumoAPI {
     {
         try
         {
-            URL url = new URL("https://api.sampleapis.com/countries/countries");
+            URL url = new URL("https://restcountries.com/v3.1/all");
             HttpURLConnection connection = (HttpURLConnection) url.openConnection();
             connection.setRequestMethod("GET");
             connection.connect();

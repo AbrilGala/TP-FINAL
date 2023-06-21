@@ -22,25 +22,31 @@ public class ControladoraPaises {
     public void JSONtoJava()throws JSONException
     {
         JSONArray jsonArray = new JSONArray(ConsumoAPI.getInfo());
-        int poblacion = 0;
         for(int i=0; i<jsonArray.length(); i++)
         {
-            JSONObject jsonObject = jsonArray.getJSONObject(i);
-            String abreviacion = jsonObject.getString("abbreviation");
-            String capital = jsonObject.getString("capital");
-            String moneda = jsonObject.getString("currency");
-            String nombre = jsonObject.getString("name");
-            String codigoTelefonico = jsonObject.getString("phone");
-            int id = jsonObject.getInt("id");
-            if (jsonObject.has("poblacion"))
+            JSONObject object = jsonArray.getJSONObject(i);
+            String nombre = object.getString("name");
+            String capital = "";
+            if(object.has("capital"))
             {
-                poblacion = jsonObject.getInt("population");
+                capital = object.getString("capital");
             }
-            JSONObject jsonObject1 = jsonObject.getJSONObject("media");
-            String bandera = jsonObject1.getString("flag");
-            String emblema = jsonObject1.getString("emblem");
-            String idioma = jsonObject1.getString("orthographic");
-            Pais unPais = new Pais(abreviacion, capital, moneda, nombre, codigoTelefonico, poblacion, bandera, emblema, idioma, id);
+            String continente = object.getString("region");
+            int poblacion = object.getInt("population");
+
+            String moneda = "";
+            if(object.has("currencies"))
+            {
+                JSONArray arrayMoneda = object.getJSONArray("currencies");
+                JSONObject objectMoneda = arrayMoneda.getJSONObject(0);
+                moneda = objectMoneda.getString("name");
+            }
+            JSONArray arrayLenguaje = object.getJSONArray("languages");
+            JSONObject objectLenguaje = arrayLenguaje.getJSONObject(0);
+            String idioma = objectLenguaje.getString("name");
+            String bandera = object.getString("flag");
+            int id = i;
+            Pais unPais = new Pais(nombre, idioma, capital, continente, moneda, poblacion, bandera, id);
             treeMap.put(id, unPais);
         }
     }

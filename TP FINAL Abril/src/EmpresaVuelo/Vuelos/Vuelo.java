@@ -1,9 +1,11 @@
 package EmpresaVuelo.Vuelos;
 
+import APIS.Paises.Pais;
 import EmpresaVuelo.Interfaces.ICalcularPrecio;
 import EmpresaVuelo.Interfaces.IVerificarDisponibilidad;
 import EmpresaVuelo.Vuelos.Aerolineas.Aerolinea;
 import netscape.javascript.JSObject;
+import org.json.JSONException;
 import org.json.JSONObject;
 
 public abstract class Vuelo implements ICalcularPrecio, IVerificarDisponibilidad{
@@ -11,8 +13,8 @@ public abstract class Vuelo implements ICalcularPrecio, IVerificarDisponibilidad
     private int cantPasajeros;
     private int capacidadMax; //Cantidad maxima de pasajeros que puede tener un vuelo
     private boolean disponibilidad; //Si se encuentra disponible para volar
-    private String origen;
-    private String destino;
+    private Pais origen;
+    private Pais destino;
     private double cantidadHoras;
     private double distanciaKm;
     private Aerolinea aerolinea;
@@ -24,7 +26,7 @@ public abstract class Vuelo implements ICalcularPrecio, IVerificarDisponibilidad
     //Constructores:
 
     //Constructor completo
-    public Vuelo(int cantPasajeros, int capacidadMax, boolean disponibilidad, String origen, String destino, double cantidadHoras, double distanciaKm, Aerolinea aerolinea, int id, double precio, String fechaDeLlegada, String fechaDeSalida) {
+    public Vuelo(int cantPasajeros, int capacidadMax, boolean disponibilidad, Pais origen, Pais destino, double cantidadHoras, double distanciaKm, Aerolinea aerolinea, int id, double precio, String fechaDeLlegada, String fechaDeSalida) {
         this.cantPasajeros = cantPasajeros;
         this.capacidadMax = capacidadMax;
         this.disponibilidad = disponibilidad;
@@ -40,7 +42,7 @@ public abstract class Vuelo implements ICalcularPrecio, IVerificarDisponibilidad
     }
 
     //Constructor completo menos el precio (se genera automaticamente)
-    public Vuelo(int cantPasajeros, int capacidadMax, boolean disponibilidad, String origen, String destino, double cantidadHoras, double distanciaKm, Aerolinea aerolinea, int id, String fechaDeLlegada, String fechaDeSalida) {
+    public Vuelo(int cantPasajeros, int capacidadMax, boolean disponibilidad, Pais origen, Pais destino, double cantidadHoras, double distanciaKm, Aerolinea aerolinea, int id, String fechaDeLlegada, String fechaDeSalida) {
         this.cantPasajeros = cantPasajeros;
         this.capacidadMax = capacidadMax;
         this.disponibilidad = disponibilidad;
@@ -60,8 +62,8 @@ public abstract class Vuelo implements ICalcularPrecio, IVerificarDisponibilidad
         cantPasajeros = 0;
         capacidadMax = 0;
         disponibilidad = true;
-        origen = "";
-        destino = "";
+        origen = new Pais();
+        destino = new Pais();
         cantidadHoras = 0;
         distanciaKm = 0;
         aerolinea = Aerolinea.AEROLINEAS_ARGENTINAS;
@@ -84,14 +86,13 @@ public abstract class Vuelo implements ICalcularPrecio, IVerificarDisponibilidad
         return disponibilidad;
     }
 
-    public String getOrigen() {
+    public Pais getOrigen (){
         return origen;
     }
 
-    public String getDestino() {
+    public Pais getDestino (){
         return destino;
     }
-
     public double getCantidadHoras() {
         return cantidadHoras;
     }
@@ -112,7 +113,6 @@ public abstract class Vuelo implements ICalcularPrecio, IVerificarDisponibilidad
         return id;
     }
 
-
     public String getFechaDeLlegada() {
         return fechaDeLlegada;
     }
@@ -120,6 +120,7 @@ public abstract class Vuelo implements ICalcularPrecio, IVerificarDisponibilidad
     public String getFechaDeSalida() {
         return fechaDeSalida;
     }
+
 
     //Setters
     private void setDisponibilidad(boolean disponibilidad) {
@@ -168,15 +169,55 @@ public abstract class Vuelo implements ICalcularPrecio, IVerificarDisponibilidad
         vuelo.put("cantPasajeros", cantPasajeros);
         vuelo.put("capacidadMax", capacidadMax);
         vuelo.put("disponibilidad",disponibilidad);
-        vuelo.put("origen", origen);
-        vuelo.put("destino", destino);
+        vuelo.put("pais origen", origen.paisToJSON());
+        vuelo.put("pais destino", destino.paisToJSON());
         vuelo.put("cantidadHoras", cantidadHoras);
         vuelo.put("distanciaKm", distanciaKm);
-        vuelo.put("aerolinea", aerolinea);
+        vuelo.put("aerolinea", aerolinea.getNombre());
         vuelo.put("id", id);
         vuelo.put("precio", precio);
         vuelo.put("fechaDeLlegada", fechaDeLlegada);
         vuelo.put("fechaDeSalida", fechaDeSalida);
+        return vuelo;
+    }
+
+    /**
+     * El método JSONAVuelos perime bajar la información de un vuelo JSON a un vuelo de Java.
+     * @param jsonObject de un vuelo
+     * @return el vuelo creado
+     * @throws JSONException lanzado por el JSONObject
+     * @author Nahuel Moron
+     */
+    public static Vuelo JSONAvuelos(JSONObject jsonObject) throws JSONException {
+        int cantPasajeros = jsonObject.getInt("cantPasajeros");
+        int capacidadMax = jsonObject.getInt("capacidadMax");
+        boolean disponibilidad = jsonObject.getBoolean("disponibilidad");
+        JSONObject origen = jsonObject.getJSONObject("pais origen");
+        Pais paisOrigen = Pais.JSONToPais(origen);
+        JSONObject destino = jsonObject.getJSONObject("pais destino");
+        Pais paisDestino = Pais.JSONToPais(destino);
+        int cantidadHoras = jsonObject.getInt("cantidadHoras");
+        double distanciaKM = jsonObject.getDouble("distanciaKm");
+        Aerolinea aerolinea = (Aerolinea) jsonObject.get("aerolinea");
+        int id = jsonObject.getInt("id");
+        double precio = jsonObject.getDouble("precio");
+        String tipoVuelo = jsonObject.getString("tipoVuelo");
+        String fechaLlegada = jsonObject.getString("fechaDeLlegada");
+        String fechaSalida = jsonObject.getString("fechaDeSalida");
+        Vuelo vuelo;
+        //Segun el tipo de vuelo:
+        if(tipoVuelo.equalsIgnoreCase("Economico"))
+        {
+            vuelo = new VueloEconomico(cantPasajeros, capacidadMax, disponibilidad, paisOrigen, paisDestino, cantidadHoras, distanciaKM, aerolinea , id, precio, fechaLlegada, fechaSalida);
+        }else {
+            if(tipoVuelo.equalsIgnoreCase("Ejecutivo"))
+            {
+                vuelo = new VueloEjecutivo(cantPasajeros, capacidadMax, disponibilidad, paisOrigen, paisDestino, cantidadHoras, distanciaKM, aerolinea , id, precio, fechaLlegada, fechaSalida);
+            }else
+            {
+                vuelo = new VueloPrimeraClase(cantPasajeros, capacidadMax, disponibilidad, paisOrigen, paisDestino, cantidadHoras, distanciaKM, aerolinea , id, precio, fechaLlegada, fechaSalida);
+            }
+        }
         return vuelo;
     }
 

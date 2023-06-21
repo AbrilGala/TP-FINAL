@@ -1,5 +1,0 @@
-package EmpresaVuelo.Vuelos.Aerolineas;
-
-public enum Aerolinea {
-    AEROLINEAS_ARGENTINAS, AIR_NEW_ZEALAND, KOREAN_AIR, SINGAPORE_AIRLINES, AEROMEXICO, AIR_EUROPA, JET_SMART, LADE
-}
